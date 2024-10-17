@@ -9,7 +9,6 @@
         $date = date("D");
         $today = date("D", strtotime($date."+ $n days"));
         $link = "";
-        
         switch ($today) {
             case "Mon":
                 $link = "<p>Hoy es Lunes: <a href=\"https://www.google.es/search?q=lunes&sca_esv=25ac67c7e3425c2e&ei=EuAPZ6_pPNKSkdUPrqWQ0Qk&ved=0ahUKEwivuufmn5OJAxVSSaQEHa4SJJoQ4dUDCA8&uact=5&oq=lunes&gs_lp=Egxnd3Mtd2l6LXNlcnAiBWx1bmVzMgoQABiABBhDGIoFMgUQABiABDIKEAAYgAQYQxiKBTIFEAAYgAQyBRAuGIAEMgUQABiABDIFEAAYgAQyBRAuGIAEMgUQABiABDIFEAAYgARIwh1QwBJY1RxwA3gBkAEEmAGSAaAB9guqAQQwLjEyuAEDyAEA-AEBmAIIoAKNBqgCCsICChAAGLADGNYEGEfCAg0QABiABBiwAxhDGIoFwgIOEAAYsAMY5AIY1gTYAQHCAhMQLhiABBiwAxhDGMgDGIoF2AEBwgIWEC4YgAQYsAMYQxjUAhjIAxiKBdgBAcICEBAAGIAEGLEDGEMYgwEYigXCAggQLhiABBjUAsICExAuGIAEGEMYtAIYigUY6gLYAQLCAhMQABiABBhDGLQCGIoFGOoC2AECwgIWEC4YgAQYQxjUAhi0AhiKBRjqAtgBAsICCxAAGIAEGLEDGIMBwgIREC4YgAQYsQMY0QMYgwEYxwHCAgoQLhiABBhDGIoFwgIOEC4YgAQYsQMYgwEYigXCAgsQLhiABBixAxiDAcICDhAAGIAEGLEDGIMBGIoFwgIZEC4YgAQYQxiKBRiXBRjcBBjeBBjfBNgBAcICCBAAGIAEGLEDmAMJiAYBkAYTugYGCAEQARgJugYECAIYB5IHAzMuNaAH8LAB&sclient=gws-wiz-serp\">Monday</a></p>";
@@ -110,7 +109,7 @@
             }elseif(preg_match("/name/", strtolower($name))){
                 throw new myException("$name contiene la palabra name");
             }else{
-                throw new myException("$name no contiene caracteres que no sean letras pero tampoco la palabra name");
+                throw new myException("Introducir nuevamente");
             }
         }catch(myException $e){
             return $e->getMessage()."";
