@@ -1,16 +1,7 @@
 <?php
     session_start();
     $usuario = ucfirst($_SESSION['usuario']);
-    $inactividad = 2;
-    if(isset($_SESSION["timeout"])){
-        $sessionTTL= time() - $_SESSION["timeout"];
-        if($sessionTTL > $inactividad){
-            session_unset();
-            session_destroy();
-            header("Location: logout.php");
-        }
-    }
-    $_SESSION["timeout"] = time();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +13,8 @@
 <body>
 <p><?php echo "Esta es la intranet de $usuario" ?></p>
 <form action="logout.php" method="post">
-    <input type="submit" value="Cerrar sesion">
+    <input type="submit" name="logout" value="Cerrar sesion">
+    <input type="submit" name="disconnect" value="Desconectar">
 </form>
 </body>
 </html>

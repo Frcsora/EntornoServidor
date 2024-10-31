@@ -4,15 +4,25 @@
     $passwords =["1234"];
 
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $usuario = $_POST["usuario"];
-        $pass = $_POST["pass"];
-        $_SESSION["usuario"] = $usuario;
-        $_SESSION["pass"] = $pass;
+        $usuario ="";
+        $pass = "";
+        if(isset($_SERVER["usuario"])){
+            $usuario = $_SERVER["usuario"];
+            $pass = $_SERVER["pass"];
+        }else{
+            $usuario = $_POST["usuario"];
+            $pass = $_POST["pass"];
+            $_SESSION["usuario"] = $usuario;
+            $_SESSION["pass"] = $pass;
+        }
+
         if(in_array(strtolower($usuario), $users) && in_array($pass, $passwords)){
             header("Location: intranet.php");
         }else{
             header("Location: index.php");
         }
+    }else{
+        header("Location: index.php");
     }
 
 
