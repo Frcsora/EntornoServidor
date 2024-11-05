@@ -6,9 +6,9 @@
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $usuario ="";
         $pass = "";
-        if(isset($_SERVER["usuario"])){
-            $usuario = $_SERVER["usuario"];
-            $pass = $_SERVER["pass"];
+        if(!empty($_SESSION["usuario"])){
+            $usuario = $_SESSION["usuario"];
+            $pass = $_SESSION["pass"];
         }else{
             $usuario = $_POST["usuario"];
             $pass = $_POST["pass"];

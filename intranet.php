@@ -1,6 +1,16 @@
 <?php
     session_start();
-    $usuario = ucfirst($_SESSION['usuario']);
+    $inactividad = 10;
+    if(isset($_SESSION["timeout"])){
+        $sessionTTL= time() - $_SESSION["timeout"];
+        if($sessionTTL > $inactividad){
+            setcookie("timeoutFinalizado", 1, time() + 60 * 60);
+            header("Location: logout.php");
+            exit;
+        }
+    }
+    $_SESSION["timeout"] = time();
+    $usuario = ucfirst(strtolower($_SESSION["usuario"]));
 
 ?>
 <!DOCTYPE html>
