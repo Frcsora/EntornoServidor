@@ -6,23 +6,22 @@
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $usuario ="";
         $pass = "";
-        if(!empty($_SESSION["usuario"])){
-            $usuario = $_SESSION["usuario"];
-            $pass = $_SESSION["pass"];
-        }else{
+        if(isset($_POST["usuario"])){
             $usuario = $_POST["usuario"];
             $pass = $_POST["pass"];
+        }else{
+            $usuario = $_SESSION["usuario"];
+            $pass = $_SESSION["pass"];
+        }
+        if(in_array(strtolower($usuario), $users) && in_array($pass, $passwords)){
             $_SESSION["usuario"] = $usuario;
             $_SESSION["pass"] = $pass;
-        }
-
-        if(in_array(strtolower($usuario), $users) && in_array($pass, $passwords)){
             header("Location: intranet.php");
         }else{
-            header("Location: index.php");
+            header("Location: logout.php");
         }
     }else{
-        header("Location: index.php");
+        header("Location: logout.php");
     }
 
 

@@ -7,24 +7,25 @@
 </head>
 <body>
     <?php
+
     session_start();
     if(!empty($_SESSION["usuario"])){
-        $inactividad = 10;
+        $inactividad = 100;
         if(isset($_SESSION["timeout"])){
             $sessionTTL= time() - $_SESSION["timeout"];
             if($sessionTTL > $inactividad){
-                setcookie("timeoutFinalizado", 1, time() + 60 * 60);
+                setcookie("timeoutFinalizado", 1, time() + 60 * 10);
                 header("Location: logout.php");
                 exit;
             }
         }
         $_SESSION["timeout"] = time();
-    }
-    if(!empty($_SESSION['usuario'])){
+
         echo "El usuario " . ucfirst(strtolower($_SESSION["usuario"])) . " ya esta logeado <br>
+            <br>
             <form action='login.php' method='POST'>
                 <input type='submit' name='entrar' value='Entrar'>
-            </form>
+            </form><br>
             <form action='logout.php' method='post'>
                 <input type='submit' name='logout' value='Cerrar Sesion'>
             </form>
@@ -40,11 +41,12 @@
             </form>";
             if(isset($_COOKIE["timeoutFinalizado"])){
                 echo "<p>Se cerró la cuenta por inactividad. Por favor introduzca de nuevo sus credenciales.</p>";
-            }elseif(isset($_SERVER["HTTP_REFERER"]) && $_SERVER["HTTP_REFERER"]=="http://localhost/ejercicio-login/index.php"){
-                echo "<p>Autentificación no realizada con exito</p>";
-            }elseif(isset($_SERVER["HTTP_REFERER"]) && $_SERVER["HTTP_REFERER"]=="http://localhost/ejercicio-login/intranet.php"){
+            }elseif(isset($_COOKIE["cerrar"])){
+                setcookie("cerrar", 1, time() - 60 * 10);
                 echo "<p>Se cerró la sesión correctamente</p>";
-            };
+            }else{
+                echo "<p>Autentificación no realizada con exito</p>";
+            }
     }
     if(isset($_COOKIE["timeoutFinalizado"])){
         setcookie("timeoutFinalizado", 1, time() - 60 * 60);

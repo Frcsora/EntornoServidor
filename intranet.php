@@ -4,7 +4,7 @@
     if(isset($_SESSION["timeout"])){
         $sessionTTL= time() - $_SESSION["timeout"];
         if($sessionTTL > $inactividad){
-            setcookie("timeoutFinalizado", 1, time() + 60 * 60);
+            setcookie("timeoutFinalizado", 1, time() + 60 * 10);
             header("Location: logout.php");
             exit;
         }
