@@ -2,7 +2,7 @@
     session_start();
     if(isset($_POST["logout"])
     || isset($_SESSION["timeout"]) && !isset($_POST["disconnect"])){
-        setcookie("cerrar", 1, time() + 60);
+        setcookie("cerrar", 1, time() + 1);
         session_unset();
         session_destroy();
         header("Location: index.php");
