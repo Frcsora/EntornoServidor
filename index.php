@@ -44,7 +44,7 @@
             }elseif(isset($_COOKIE["cerrar"])){
                 setcookie("cerrar", 1, time() - 60 * 10);
                 echo "<p>Se cerró la sesión correctamente</p>";
-            }else{
+            }elseif($_SERVER["REQUEST_METHOD"] == "POST"){
                 echo "<p>Autentificación no realizada con exito</p>";
             }
     }
