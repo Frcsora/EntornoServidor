@@ -23,7 +23,7 @@ class Autor
         $this->nacionalidad = $nacionalidad;
     }
     public function mostrarDetalles(){
-        echo `Nombre: ${this->nombre}
-                Nacionalidad: ${this->nacionalidad}`;
+        echo "Nombre: "  . $this->getNombre() .
+            "<br>Nacionalidad: ". $this->getNacionalidad();
     }
 }

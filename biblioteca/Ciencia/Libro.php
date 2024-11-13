@@ -14,7 +14,7 @@ class Libro
     public function getTitulo(){
         return $this->titulo;
     }
-    public function getAno(){
+    public function getAnio(){
         return $this->anio;
     }
     public function setTitulo($titulo){
@@ -24,7 +24,7 @@ class Libro
         $this->anio = $anio;
     }
     public function mostrarDetalles(){
-        echo `Titulo: ${this->titulo}
-             Año: ${this->anio}`;
+        echo "Titulo: " . $this->getTitulo() .
+             "<br>Año: " . $this->getAnio();
     }
 }
