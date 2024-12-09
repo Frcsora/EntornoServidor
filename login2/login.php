@@ -1,28 +1,27 @@
 <?php
-    session_start();
-    $users = ["francesc"=>"1234", "tomeu"=>"1234", "alan"=>"1234", "rafel"=>"1234", "ana"=>"1234"];
+
     if($_SERVER["REQUEST_METHOD"] == "POST"){
+        require_once "connection.php";
+        session_start();
         $usuario ="";
-        $pass = "";
         if(!isset($_SESSION["usuario"])){
-            $usuario = $_POST["usuario"];
-            $pass = $_POST["pass"];
+            $usuario = getUserByName(conectarBBDD(), htmlspecialchars(trim(strtolower($_POST["usuario"]))));
         }else{
             $usuario = $_SESSION["usuario"];
-            $pass = $_SESSION["pass"];
         }
 
-        if($users[$usuario] === $pass){
-            $_SESSION["usuario"] = $usuario;
-            $_SESSION["pass"] = $pass;
-            header("Location: intranet.php");
+        if(getIfUserExists(conectarBBDD(), getUserFromID(conectarBBDD(), $usuario))){
+            if($_POST["entrar"] || password_verify(htmlspecialchars($_POST["pass"]), getPassword(conectarBBDD(), getUserFromID(conectarBBDD(), $usuario)))){
+                $_SESSION["usuario"] = $usuario;
+                header("location: intranet.php");
+                exit;
+            }else{
+                setcookie("incorrecto", 1, time() + 60 * 10, "/");
+            }
         }else{
-            setcookie("incorrecto", 1, time() + (86400 * 30), "/");
-            header("Location: logout.php");
+            setcookie("incorrecto", 1, time() + 60 * 10, "/");
         }
-    }else{
-        header("Location: logout.php");
     }
-
+    header("Location: logout.php");
 
 

@@ -8,7 +8,9 @@
 <body>
     <?php
 
+    require_once "connection.php";
     session_start();
+
     if(!empty($_SESSION["usuario"])){
         $inactividad = 100;
         if(isset($_SESSION["timeout"])){
@@ -21,7 +23,7 @@
         }
         $_SESSION["timeout"] = time();
 
-        echo "El usuario " . ucfirst(strtolower($_SESSION["usuario"])) . " ya esta logeado <br>
+        echo getFullName(conectarBBDD(), $_SESSION["usuario"]) . " ya esta logeado <br>
             <br>
             <form action='login.php' method='POST'>
                 <input type='submit' name='entrar' value='Entrar'>
@@ -34,15 +36,15 @@
     }elseif(isset($_POST["signin"])){
         echo "<form method='post' action='register.php'>
                   <label for='nombre'>Nombre:</label>
-                  <input type='text' name='nombre' placeholder='Nombre'><br><br>
-                  <label for='pass'>Password:</label>
-                  <input type='password' name='pass' placeholder='Password'><br><br>
+                  <input type='text' name='nombre' placeholder='Nombre' required><br><br>
                   <label for='apellido1'>Apellido 1:</label>
-                  <input type='text' name='apellido1' placeholder='Apellido 1'><br><br>
+                  <input type='text' name='apellido1' placeholder='Apellido 1' required><br><br>
                   <label for='apellido2'>Apellido 2:</label>
-                  <input type='text' name='apellido2' placeholder='Apellido 2'><br><br>
+                  <input type='text' name='apellido2' placeholder='Apellido 2' required><br><br>
                   <label for='username'>Username:</label>
-                  <input type='text' name='username' placeholder='username'><br><br>
+                  <input type='text' name='username' placeholder='username' required><br><br>
+                  <label for='pass'>Password: </label>
+                  <input type='password' name='pass' placeholder='Password' pattern='(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W).{6,14}' title='Debe tener una mayúscula, una minúscula, un número y un caracter especial' required><br><br>
                   <input type='submit' value='Entrar'>
               </form>";
     }else{
@@ -64,7 +66,22 @@
                 echo "<p>Se cerró la sesión correctamente</p>";
             }elseif(isset($_COOKIE["incorrecto"])){
                 setcookie("incorrecto", 1, time() - 60 * 10, "/");
-                echo "<p>Autentificación no realizada con exito</p>";
+                session_unset();
+                session_destroy();
+                echo "<p>Autentificación no realizada con éxito</p>";
+            }elseif(isset($_COOKIE["registromal"])){
+                setcookie("registromal", 1, time() - (86400 * 30), "/");
+                echo "<p>Error en el registro, por favor, vuelva a intentarlo</p>";
+            }elseif(isset($_COOKIE["registrobien"])){
+                setcookie("registrobien", 1, time() - (86400 * 30), "/");
+                echo "<p>Registro Exitoso</p>";
+            }elseif(isset($_COOKIE["yaregistrado"])){
+                setcookie("yaregistrado", 1, time() - (86400 * 30), "/");
+                echo "<p>El nombre de usuario no está disponible</p>";
+            }elseif(isset($_COOKIE["recuperacionmal"])){
+                setcookie("recuperacionmal",1, time() - (86400 * 30), "/");
+
+                echo "<p>Contraseña incorrecta, no se pudo recuperar la cuenta</p>";
             }
     }
     if(isset($_COOKIE["timeoutFinalizado"])){
