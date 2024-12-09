@@ -42,7 +42,7 @@
                   <label for='apellido2'>Apellido 2:</label>
                   <input type='text' name='apellido2' placeholder='Apellido 2' required><br><br>
                   <label for='username'>Username:</label>
-                  <input type='text' name='username' placeholder='username' required><br><br>
+                  <input type='text' name='username' placeholder='username' pattern='^[^ ]+$' title='El usuario no puede contener espacios' required><br><br>
                   <label for='pass'>Password: </label>
                   <input type='password' name='pass' placeholder='Password' pattern='(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W).{6,14}' title='Debe tener una mayúscula, una minúscula, un número y un caracter especial' required><br><br>
                   <input type='submit' value='Entrar'>

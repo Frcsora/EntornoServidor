@@ -1,8 +1,9 @@
 <?php
-if($_SERVER["PHP_SELF"] == "/login2/connection.php"){
+if(str_contains($_SERVER["PHP_SELF"], "connection.php")){
     header("location:logout.php");
     exit;
 }
+
 function conectarBBDD($charset = "utf8mb4" ,$tipo = "mysql", $port = 3307, $host = "localhost", $user = "root", $pass = "", $db = "DWES") {
     try{
         $PDO = new PDO("$tipo:host=$host:$port;dbname=$db;charset=$charset", $user, $pass);
@@ -77,7 +78,16 @@ function darseDeBaja($PDO, $id){
     }catch(Exception $e){
         echo $e->getMessage();
     }
-
+}
+function cambiarPassword($PDO,$id,$password){
+    try{
+        $stmt = $PDO->prepare("UPDATE usuarios SET pass = :password WHERE id = :id");
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        $stmt->bindParam(":password", $password, PDO::PARAM_STR);
+        $stmt->execute();
+    }catch (Exception $e){
+        echo $e->getMessage();
+    }
 }
 function getStatus($PDO, $id){
     //Obtener el valor de status, se utiliza en intranet.php para mostrar un contenido u otro

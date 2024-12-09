@@ -6,8 +6,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         darseDeBaja(conectarBBDD(), $_SESSION["usuario"]);
         session_unset();
         session_destroy();
-    }
-    if(isset($_POST["passalta"])){
+    }elseif(isset($_POST["passalta"])){
         if(password_verify(htmlspecialchars($_POST["passalta"]), getPassword(conectarBBDD(), getUserFromID(conectarBBDD(), $_SESSION["usuario"])))){
             darseDeAlta(conectarBBDD(), $_SESSION["usuario"]);
             header("location:intranet.php");
@@ -17,7 +16,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             session_unset();
             session_destroy();
         }
-
+    }elseif(isset($_POST["passchange"])){
+        cambiarPassword(conectarBBDD(), $_SESSION["usuario"], password_hash($_POST["passchange"], PASSWORD_DEFAULT));
     }
 }
 header("location:logout.php");
