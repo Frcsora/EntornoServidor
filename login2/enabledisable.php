@@ -3,7 +3,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     session_start();
     require_once "connection.php";
     if(isset($_POST["baja"])){
-        //Caso darse de baja
+        /*Caso darse de baja*/
         darseDeBaja(conectarBBDD(), $_SESSION["usuario"]);
         session_unset();
         session_destroy();
