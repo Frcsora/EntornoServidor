@@ -10,9 +10,8 @@
 
     require_once "connection.php";
     session_start();
-
     if(!empty($_SESSION["usuario"])){
-        $inactividad = 100;
+        $inactividad = 300;
         if(isset($_SESSION["timeout"])){
             $sessionTTL= time() - $_SESSION["timeout"];
             if($sessionTTL > $inactividad){
@@ -22,7 +21,7 @@
             }
         }
         $_SESSION["timeout"] = time();
-
+        //Caso si hay un usuario logeado aunque este desconectado
         echo getFullName(conectarBBDD(), $_SESSION["usuario"]) . " ya esta logeado <br>
             <br>
             <form action='login.php' method='POST'>
@@ -34,6 +33,7 @@
             ";
 
     }elseif(isset($_POST["signin"])){
+        //Caso login
         echo "<form method='post' action='register.php'>
                   <label for='nombre'>Nombre:</label>
                   <input type='text' name='nombre' placeholder='Nombre' required><br><br>
@@ -48,6 +48,7 @@
                   <input type='submit' value='Entrar'>
               </form>";
     }else{
+        //Registro
         echo "
             <form action='login.php' method='POST'>
                 <label for='usuario'>User:</label>
@@ -63,8 +64,10 @@
                 <input type='text' name='buscador'>
                 <input type='submit' value='Buscar usuario'>
             </form>";
+        //Mensaje de información que se mostrara segun el caso
             if(isset($_COOKIE["timeoutFinalizado"])){
                 echo "<p>Se cerró la cuenta por inactividad. Por favor introduzca de nuevo sus credenciales.</p>";
+                setcookie("timeoutFinalizado", 1, time() - 60 * 60);
             }elseif(isset($_COOKIE["cerrar"])){
                 setcookie("cerrar", 1, time() - 60 * 10);
                 echo "<p>Se cerró la sesión correctamente</p>";
@@ -76,9 +79,6 @@
             }elseif(isset($_COOKIE["registromal"])){
                 setcookie("registromal", 1, time() - (86400 * 30), "/");
                 echo "<p>Error en el registro, por favor, vuelva a intentarlo</p>";
-            }elseif(isset($_COOKIE["registrobien"])){
-                setcookie("registrobien", 1, time() - (86400 * 30), "/");
-                echo "<p>Registro Exitoso</p>";
             }elseif(isset($_COOKIE["yaregistrado"])){
                 setcookie("yaregistrado", 1, time() - (86400 * 30), "/");
                 echo "<p>El nombre de usuario no está disponible</p>";
@@ -87,9 +87,6 @@
 
                 echo "<p>Contraseña incorrecta, no se pudo recuperar la cuenta</p>";
             }
-    }
-    if(isset($_COOKIE["timeoutFinalizado"])){
-        setcookie("timeoutFinalizado", 1, time() - 60 * 60);
     }
     ?>
 </body>

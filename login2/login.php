@@ -1,6 +1,6 @@
 <?php
 
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
+    if($_SERVER["REQUEST_METHOD"] == "POST" || isset($_COOKIE["registrobien"])){
         require_once "connection.php";
         session_start();
         $usuario ="";
@@ -11,7 +11,7 @@
         }
 
         if(getIfUserExists(conectarBBDD(), getUserFromID(conectarBBDD(), $usuario))){
-            if($_POST["entrar"] || password_verify(htmlspecialchars($_POST["pass"]), getPassword(conectarBBDD(), getUserFromID(conectarBBDD(), $usuario)))){
+            if(isset($_COOKIE["registrobien"]) || $_POST["entrar"] || password_verify(htmlspecialchars($_POST["pass"]), getPassword(conectarBBDD(), getUserFromID(conectarBBDD(), $usuario)))){
                 $_SESSION["usuario"] = $usuario;
                 header("location: intranet.php");
                 exit;
@@ -22,6 +22,7 @@
             setcookie("incorrecto", 1, time() + 60 * 10, "/");
         }
     }
+    echo $_SESSION["usuario"];
     header("Location: logout.php");
 
 

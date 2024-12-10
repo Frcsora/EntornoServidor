@@ -7,7 +7,7 @@
         session_destroy();
 
     }
-    if(isset($_COOKIE["timeoutfinalizado"])){
+    if(isset($_COOKIE["timeoutFinalizado"])){
         session_start();
         session_unset();
         session_destroy();
