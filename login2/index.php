@@ -58,6 +58,10 @@
             </form><br><br>
             <form action='index.php' method='POST'>
                 <input type='submit' name='signin' value='Registro'>
+            </form><br><br>
+            <form method='POST' action='Actividad18.php'>
+                <input type='text' name='buscador'>
+                <input type='submit' value='Buscar usuario'>
             </form>";
             if(isset($_COOKIE["timeoutFinalizado"])){
                 echo "<p>Se cerró la cuenta por inactividad. Por favor introduzca de nuevo sus credenciales.</p>";

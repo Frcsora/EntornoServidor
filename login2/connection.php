@@ -10,7 +10,7 @@ function conectarBBDD($charset = "utf8mb4" ,$tipo = "mysql", $port = 3307, $host
         $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $PDO;
     }catch(PDOException $e){
-        echo $e->getMessage();
+        echo "No se conectó con exito";
 
     }
     return null;

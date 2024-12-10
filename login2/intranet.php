@@ -25,21 +25,21 @@
 <body>
 <?php
     if(isset($_POST["change"])){
-        echo"<form method='POST' action='enabledisable.php'>
+        echo "<form method='POST' action='disable.php'>
                 <label>Nueva contraseña: </label>
                 <input type='password' name='passchange' placeholder='Password' pattern='(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W).{6,14}' title='Debe tener una mayúscula, una minúscula, un número y un caracter especial' required>
                 <input type='submit' value='Cambiar contraseña'>
              </form>";
     }elseif($status === "alta"){
         echo "<p>Esta es la intranet de $usuario</p>";
-        echo "<form method='POST' action='enabledisable.php'>
+        echo "<form method='POST' action='disable.php'>
                 <input value='Darse de baja' name='baja' type='submit'>
               </form><br>
               <form method='POST' action='intranet.php'>
                 <input type='submit' value='Cambiar contraseña' name='change'><br><br>
               </form>";
     }elseif(isset($_POST["dandoalta"])){
-        echo "<form method='POST' action='enabledisable.php'>
+        echo "<form method='POST' action='disable.php'>
                 <label>Confirme su contraseña para recuperar su cuenta: </label>
                 <input type='password' name='passalta' required><br>
                 <input value='Recuperar cuenta' name='alta' type='submit'>
