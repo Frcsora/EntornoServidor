@@ -33,7 +33,7 @@
             ";
 
     }elseif(isset($_POST["signin"])){
-        //Caso login
+        //Caso registro
         echo "<form method='post' action='register.php'>
                   <label for='nombre'>Nombre:</label>
                   <input type='text' name='nombre' placeholder='Nombre' required><br><br>
@@ -48,7 +48,7 @@
                   <input type='submit' value='Entrar'>
               </form>";
     }else{
-        //Registro
+        //Caso login
         echo "
             <form action='login.php' method='POST'>
                 <label for='usuario'>User:</label>
