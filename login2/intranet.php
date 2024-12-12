@@ -2,6 +2,8 @@
     require_once "connection.php";
     session_start();
     //En la sesion ["usuario"] esta guardada la id del usuario en la base de datos
+/*En esta página he puesto varias funcionalidades adicionales tales como cambiar la password o, en el caso de que la cuenta
+este dada de baja, la posibilidad de recuperarla a través de introducir la contraseña de la cuenta*/
     $inactividad = 300;
     if(isset($_SESSION["timeout"])){
         $sessionTTL= time() - $_SESSION["timeout"];
@@ -26,6 +28,7 @@
 <?php
     if(isset($_POST["change"])){
         //Caso cambiando contraseña
+        //Esto solo se ejecutara si el usuario esta intentando cambiar la contraseña
         echo "<form method='POST' action='disable.php'>
                 <label>Nueva contraseña: </label>
                 <input type='password' name='passchange' placeholder='Password' pattern='(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W).{6,14}' title='Debe tener una mayúscula, una minúscula, un número y un caracter especial' required>
@@ -33,6 +36,7 @@
              </form>";
     }elseif($status === "alta"){
         //Caso usuario de alta
+        //Esto es lo que se verá si el usuario está de alta
         echo "<p>Esta es la intranet de $usuario</p>";
         echo "<form method='POST' action='disable.php'>
                 <input value='Darse de baja' name='baja' type='submit'>
@@ -45,6 +49,7 @@
                   echo "<p>Registro Exitoso</p>";
               }
     }elseif(isset($_POST["dandoalta"])){
+        //Esto es lo que se verá si el usuario esta intentando recuperar la cuenta
         //Caso dando de alta
         echo "<form method='POST' action='disable.php'>
                 <label>Confirme su contraseña para recuperar su cuenta: </label>
@@ -52,6 +57,7 @@
                 <input value='Recuperar cuenta' name='alta' type='submit'>
               </form>";
     }else{
+        //Esto es lo que se verá si el usuario hace login pero esta de baja
         //Caso dandose de baja
         echo "<p>Este usuario se ha dado de baja</p>";
         echo "<form method='POST' action='intranet.php'>
