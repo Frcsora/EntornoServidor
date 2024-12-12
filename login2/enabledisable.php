@@ -9,12 +9,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         session_destroy();
     }elseif(isset($_POST["passalta"])){
         if(password_verify(htmlspecialchars($_POST["passalta"]), getPassword(conectarBBDD(), getUserFromID(conectarBBDD(), $_SESSION["usuario"])))){
-            //Caso recuprar cuenta bien
+            //Caso recuperar cuenta va bien
             darseDeAlta(conectarBBDD(), $_SESSION["usuario"]);
             header("location:intranet.php");
             exit;
         }else{
-            //Caso recuperar cuenta mal
+            //Caso recuperar cuenta va mal
             setcookie("recuperacionmal",1, time() + (86400 * 30), "/");
             session_unset();
             session_destroy();
