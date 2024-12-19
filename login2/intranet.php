@@ -4,6 +4,10 @@
     //En la sesion ["usuario"] esta guardada la id del usuario en la base de datos
     /*En esta página he puesto varias funcionalidades adicionales tales como cambiar la password o, en el caso de que la cuenta
     este dada de baja, la posibilidad de recuperarla a través de introducir la contraseña de la cuenta*/
+    if(empty($_SERVER['HTTP_REFERER'])){
+        header("Location: logout.php");
+        exit;
+    }
     $inactividad = 300;
     if(isset($_SESSION["timeout"])){
         $sessionTTL= time() - $_SESSION["timeout"];

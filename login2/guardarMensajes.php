@@ -6,3 +6,4 @@ $usuario = $datos->usuario;
 $mensaje = $datos->mensaje;
 $conn = conectarBBDD();
 guardarMensaje($conn, $usuario, $mensaje);
+header("location:logout.php");
