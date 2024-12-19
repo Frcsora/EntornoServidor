@@ -6,4 +6,3 @@
     $conn = conectarBBDD();
     $result = selectMensajes($conn, $id);
     echo json_encode($result);
-    header("location:logout.php");

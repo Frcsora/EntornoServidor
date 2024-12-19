@@ -2,7 +2,8 @@ let ultimoMensaje = 0;
 async function enseñarUltimosMensajes(){
     try{
         const mensajes = await recogerMensajes(ultimoMensaje);
-        crearMensajes(mensajes, document.getElementById("mensajesDiv"))
+        crearMensajes(mensajes, document.getElementById("mensajesDiv"));
+        console.log("mensajes")  
     }catch(error){
         console.error("Error del servidor:", error)
     }
@@ -27,10 +28,8 @@ async function recogerMensajes(ultimoMensaje = 0){
             headers:{"Content-Type": "application/json"},
             body: JSON.stringify({ultimaID: ultimoMensaje})
         })
-        const data = await response.json();
-        return data;
+        return await response.json();
     }catch(error){
-        console.log("Error del servidor:", error);
         return [];
     }    
 }
@@ -38,13 +37,10 @@ async function requerirID(){
     try{
         const response = await fetch("requerirUsuario.php",{
             method:"POST",
-            headers:{"Content-Type": "application/json"},
+            headers:{"Content-Type": "application/json"}
         })
-        const data = await response.json();
-        console.log(data)
-        return data;
+        return await response.json();
     }catch(error){
-        console.log("Error del servidor:", error);
         return [];
     }
 }
@@ -54,7 +50,7 @@ function limpiarTabla(){
         headers:{"Content-Type":"application/json"}
     })
     .then(response=>response.json())
-    .catch(error=>console.log("Error del servidor:", error))
+    .catch(error=>console.error("Error del servidor:", error))
 }
 async function enviarMensaje(){
     const info = {
@@ -65,21 +61,12 @@ async function enviarMensaje(){
         method:"POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(info)
-    })
-        .then(response=>response.text())
-        .then(data=>{
-            console.log("Respuesta del servidor:", data)
-        }).catch(error=>{
-        console.log("Error del servidor:",error)
-    })
+        })
+        .then(response=>response.json())
+        .catch(error=>{
+        console.error("Error del servidor:",error)
+        })
 }
-
-addEventListener('DOMContentLoaded',()=> {
-    (async()=>{
-        const mensajes = await recogerMensajes();
-        crearMensajes(mensajes, document.getElementById("mensajesDiv"))
-    })();
-});
 document.getElementById("form").addEventListener('submit', async (event) =>{
     event.preventDefault();
     try{

@@ -6,4 +6,4 @@ $usuario = $datos->usuario;
 $mensaje = $datos->mensaje;
 $conn = conectarBBDD();
 guardarMensaje($conn, $usuario, $mensaje);
-header("location:logout.php");
+echo json_encode("Mensaje introducido con éxito");
