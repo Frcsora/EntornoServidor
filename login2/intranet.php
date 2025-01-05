@@ -1,6 +1,10 @@
 <?php
     require_once "connection.php";
     session_start();
+    if(str_contains($_SERVER["PHP_SELF"], "intranet.php")){
+        header("location:logout.php");
+        exit;
+    }
     //En la sesion ["usuario"] esta guardada la id del usuario en la base de datos
 /*En esta página he puesto varias funcionalidades adicionales tales como cambiar la password o, en el caso de que la cuenta
 este dada de baja, la posibilidad de recuperarla a través de introducir la contraseña de la cuenta*/
