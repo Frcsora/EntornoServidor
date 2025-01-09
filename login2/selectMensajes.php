@@ -1,5 +1,9 @@
 <?php
-    require("connection.php");
+    if($_SERVER['REQUEST_METHOD'] !== "POST"){
+        header('location:logout.php');
+        exit;
+    }
+    require "connection.php";
     header('Content-type: application/json');
     $datos = json_decode(file_get_contents("php://input"));
     $id = $datos->ultimaID;

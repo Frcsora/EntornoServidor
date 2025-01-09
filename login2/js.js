@@ -1,24 +1,24 @@
-let ultimoMensaje = 0;
 async function enseñarUltimosMensajes(){
     try{
-        const mensajes = await recogerMensajes(ultimoMensaje);
+        const mensajes = await recogerMensajes(parseInt(document.getElementById("mensajesDiv").lastChild.id));
         crearMensajes(mensajes, document.getElementById("mensajesDiv"));
-        console.log("mensajes")  
     }catch(error){
         console.error("Error del servidor:", error)
     }
 }
 function crearMensajes(fetch, mensajesDiv){
     for(let i = 0 ; i < fetch.length ; i++){
+        const div = document.createElement("div");
         const date = new Date(fetch[i].fecha);
         const p = document.createElement("p");
         p.innerHTML = `<b>${fetch[i].username.toUpperCase()}</b>: ${fetch[i].mensaje}<br>`;
+        div.id = fetch[i].id;
         const fecha = document.createElement("p");
         fecha.innerText = date.toLocaleString("es-ES");
         fecha.classList.add("fecha");
-        mensajesDiv.appendChild(p);
-        mensajesDiv.appendChild(fecha);
-        ultimoMensaje = fetch[i].id;
+        mensajesDiv.appendChild(div);
+        div.appendChild(p);
+        div.appendChild(fecha);
     }
 }
 async function recogerMensajes(ultimoMensaje = 0){
@@ -85,7 +85,17 @@ document.getElementById("form").addEventListener('submit', async (event) =>{
 document.addEventListener('keydown',(event)=>{
     if(event.key == "Enter") document.getElementById("boton").click();
 })
+addEventListener('DOMContentLoaded', async ()=>{
+    try{
+        const mensajes = await recogerMensajes();
+        crearMensajes(mensajes, document.getElementById("mensajesDiv"));
+        console.log(document.getElementById("mensajesDiv").lastElementChild)
+
+    }catch(error){
+        console.error("Error del servidor:", error)
+    }
+})
 setTimeout(()=>{
     setInterval(limpiarTabla, 1000 * 60 * 10);
 },1000 * 60 * 10)
-setInterval(enseñarUltimosMensajes, 2000)
+setInterval(enseñarUltimosMensajes, 500)
