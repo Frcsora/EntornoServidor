@@ -1,0 +1,447 @@
+function configurarBotones(){
+    const p = document.querySelectorAll("p");
+    p.forEach(parrafo => {
+        parrafo.addEventListener('dblclick', () => textoModificable(parrafo));
+        parrafo.addEventListener('focusout', () => {
+            yaNoModificable(parrafo, parrafo.parentNode.parentNode);
+            const ids = tomarID(parrafo.parentElement.parentElement);
+            const listaid = ids.id_lista;
+            const id = ids.id;
+            const texto = parrafo.innerText;
+            changeTexto(listaid, id, texto);
+        });
+    })
+    const letras = document.querySelectorAll(".inputletra");
+    letras.forEach(input => {
+        input.addEventListener('change', () => {
+            const ids = tomarID(input.parentElement.parentElement);
+            const data = {
+                id_lista: ids.id_lista,
+                id: ids.id,
+                color: input.value,
+                queCambiar: false
+            };
+            input.parentElement.parentElement.style.color = input.value;
+            cambiarColor(data);
+        });
+    })
+    const fondo = document.querySelectorAll(".inputcolorfondo");
+    fondo.forEach(input => {
+        input.addEventListener('change', () => {
+            const ids = tomarID(input.parentElement.parentElement);
+            const data = {
+                id_lista: ids.id_lista,
+                id: ids.id,
+                color: input.value,
+                queCambiar: true
+            };
+            input.parentElement.parentElement.style.backgroundColor = input.value;
+            cambiarColor(data);
+        });
+    })
+    const checkbox = document.querySelectorAll(".checkboximportante");
+    checkbox.forEach(check => {
+        check.addEventListener("change", () => {
+            if(check.checked) {
+                check.parentElement.parentElement.classList.add("importante");
+            }else{
+                check.parentElement.parentElement.classList.remove("importante");
+            }
+        });
+    })
+    const botonesCerrarPopUp = document.querySelectorAll(".botoncerrarpopup");
+    botonesCerrarPopUp.forEach(boton => {
+        boton.addEventListener('click', () =>{
+            boton.parentElement.classList.remove("flex");
+            boton.parentElement.classList.add("hidden");
+        })
+    })
+    const botonesTarjeta = document.querySelectorAll(".botontarjeta")
+    botonesTarjeta.forEach(boton => {
+        boton.addEventListener('click', () => {
+            const data = {
+                id_lista: boton.parentElement.parentElement.parentElement.id.replace(/\D/g, ""),
+                id: boton.parentElement.parentElement.id.replace(/^.*t/, "")
+            }
+            Eliminar(boton.parentElement.parentElement);
+            eliminarTarjeta(data)
+        })
+    })
+    const botonesPopup = document.querySelectorAll(".botonpopup");
+    botonesPopup.forEach(boton => {
+        boton.addEventListener("click", () => {
+            if(boton.parentElement.nextElementSibling.classList.contains("hidden")) {
+                boton.parentElement.nextElementSibling.classList.remove("hidden");
+                boton.parentElement.nextElementSibling.classList.add("flex");
+            }else{
+                boton.parentElement.nextElementSibling.classList.remove("flex");
+                boton.parentElement.nextElementSibling.classList.add("hidden");
+            }
+        });
+    })
+    const botonesCrear = document.querySelectorAll(".add-card");
+    botonesCrear.forEach(boton => {
+        let index = 1;
+        boton.addEventListener('click', () => {
+            const containerTarjetas = boton.parentElement.previousElementSibling;
+            crearTarjeta(containerTarjetas, index);
+            index++;
+        })
+    })
+    const botonesEliminar = document.querySelectorAll(".delete-list");
+    botonesEliminar.forEach(boton => {
+        boton.addEventListener('click', () => {
+            const id = boton.parentElement.previousElementSibling.id.replace(/\D/g, "");
+            Eliminar(boton.parentElement.parentElement);
+            eliminarLista(id);
+        })
+    })
+    const listas = document.querySelectorAll(".list");
+    listas.forEach(lista => {
+        lista.addEventListener("dragover", (event) => event.preventDefault());
+        lista.addEventListener('drop', (event) => drop(event));
+
+    })
+    const tarjetas = document.querySelectorAll(".card");
+    tarjetas.forEach(tarjeta => {
+        dragstart(tarjeta);
+    })
+}
+function dragstart(tarjeta){
+    tarjeta.addEventListener("dragstart", (event) => {
+        const idTarjeta = event.target.id;
+        //En el dataTransfer guardamos la id de la tarjeta, para que sepamos que tarjeta estamos moviendo al hacer el drop
+        event.dataTransfer.setData("text/plain", `${idTarjeta}`);
+        tarjeta.classList.add("drag");
+        if(tarjeta.lastElementChild.classList.contains("flex")) {
+            tarjeta.lastElementChild.classList.remove("flex");
+            tarjeta.lastElementChild.classList.add("hidden");
+        }
+    });
+}
+function drop(event){
+    /*
+        * Contenedor es el contenedor de tarjetas correcto donde ha caído la tarjeta
+        * infoTarjeta trae la id de la tarjeta arrastrada
+        * tarjetas es el conjunto de tarjetas que ya había de antes en esa lista
+        * */
+    event.preventDefault();
+    //El metodo closest forma parte de la interfaz "Element" y toma el elemento que coincida con el selector designado
+    const contenedor = event.target.closest(".list").firstElementChild.nextElementSibling//.list es la lista entera, el primer hijo es el titulo, el segundo el contenedor de tarjetas
+    const infoTarjeta = event.dataTransfer.getData("text/plain");
+    const tarjetasAnteriores = contenedor.children;
+    const tarjetaArrastrada = document.querySelector(`#${infoTarjeta}`);
+    const ids = tomarID(tarjetaArrastrada);
+    const data = {
+        id_lista: ids.id_lista,
+        id: ids.id,
+        tabla_actual: contenedor.id.replace(/\D/g, "")
+    }
+    for(let i = 0; i < tarjetasAnteriores.length; i++) {
+        if(tarjetasAnteriores[i] === tarjetaArrastrada) continue;
+        /*
+        * elemento.getBoundingClientRect: nos devuelve la información sobre la posicion absoluta(top left right bottom) del elemento asi como de sus dimensiones
+        * evento.clientY: nos devuelve la posicion absoluta respecte a top donde ha soltado el evento
+        * elemento.clientHeight: nos devuelve la altura del evento
+        * Con todo estos podemos ver si el lugar donde se suelta esta encima o debajo de otra tarjeta para colocarla en la posición deseada.
+        * Pero lo que quiero es que se tome como referencia el centro de la tarjeta, de forma que si el evento salta en la parte superior
+        * de una tarjeta la pone antes, en la inferior la pone después. Esto lo consigo sumandole al top del objeto DOMRECT
+        * la mitad de la altura del elemento.
+        * */
+
+        const posicion = tarjetasAnteriores[i].getBoundingClientRect();
+        if(posicion.top + (tarjetasAnteriores[i].clientHeight / 2) > event.clientY){
+            contenedor.insertBefore(tarjetaArrastrada, tarjetasAnteriores[i]);
+            actualizarListaActual(data);
+            break;
+        }
+        if(i === tarjetasAnteriores.length - 1){
+            contenedor.insertAdjacentElement('beforeend', tarjetaArrastrada);
+            actualizarListaActual(data);
+        }
+    }
+    if(!tarjetasAnteriores.length){
+        contenedor.insertAdjacentElement('beforeend', tarjetaArrastrada);
+        actualizarListaActual(data);
+    }
+}
+function Eliminar(nodo){
+    nodo.remove();
+}
+
+function crearTarjeta(containerTarjetas, index){
+    /*
+    * containerTarjetas: contenedor donde se encuentran las tarjetas
+    * tarjeta: la propia tarjeta
+    * contenidoTarjeta: contenido interno de la tarjeta
+    * */
+    //Guardamos la fecha de creación de la tarjeta para ponerla en un title
+    const fecha = new Date().toLocaleString("es-ES");
+    const tarjeta = document.createElement("section");
+    tarjeta.setAttribute('title', `Fecha de creación: ${fecha}`);
+    tarjeta.classList.add("card");
+    //La id consiste en la palabra tarjeta seguida del número del contenedor(0, 1 o 2) y el indice que se le pasa desde crearLista
+    tarjeta.id = `tarjeta${containerTarjetas.id.replace(/\D/g, "")}${index}`
+    tarjeta.setAttribute('draggable', 'true');
+    containerTarjetas.insertAdjacentElement("beforeend", tarjeta);
+    const contenidoTarjeta = document.createElement("section");
+    tarjeta.insertAdjacentElement("beforeend", contenidoTarjeta);
+    const p = document.createElement("p");
+    contenidoTarjeta.classList.add("flex", "flexcard");
+    p.innerText = `Nueva Tarea`;
+    p.addEventListener('dblclick', () => textoModificable(p));
+    p.addEventListener('focusout', () => {
+        yaNoModificable(p, p.parentNode.parentNode);
+        const ids = tomarID(p.parentElement.parentElement);
+        console.log(ids)
+        const listaid = ids.id_lista;
+        const id = ids.id;
+        const texto = p.innerText;
+        const data = {
+            id_lista: listaid,
+            id: id,
+            texto: texto
+        }
+        changeTexto(data);
+    });
+    //creo un popup que nos permite modificar la tarjeta, a traves de un boton con la clásica rueda de configuración que hace el popup visible
+    const popup = document.createElement("section");
+    popup.classList.add("pop-up", "hidden", "flexcard");
+    const configuracion = document.createElement("button");
+    //document.createElementNS sirve para crear elementos que tienen su propio namespace
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', "svg");
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('viewBox','0 0 512 512');
+    configuracion.insertAdjacentElement("beforeend", svg);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', "path");
+    path.setAttribute('d', "M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z");
+    svg.insertAdjacentElement("beforeend", path);
+    const comentario = document.createComment("!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.");
+    //No me deja insertar un comentario con insertAdjacentElement, asi que he tenido que usar insertBefore
+    svg.insertBefore(comentario, svg.firstChild);
+    const boton = document.createElement("button");
+    boton.innerText = "X";
+    boton.addEventListener('click', () => Eliminar(tarjeta));
+    contenidoTarjeta.insertAdjacentElement("beforeend", p);
+    contenidoTarjeta.insertAdjacentElement("beforeend", boton);
+    contenidoTarjeta.insertAdjacentElement("beforeend", configuracion);
+    contenidoTarjeta.insertAdjacentElement("beforeend", popup);
+    //El popup contiene 3 inputs que permiten cambiar el color de texto, el de fondo y marcar la tarjeta como importante
+    const labelFondo = document.createElement("label");
+    labelFondo.innerText = "Color de fondo";
+    const colorFondo = document.createElement("input");
+    colorFondo.type = "color";
+    colorFondo.value = "#FFFFFF";
+    colorFondo.classList.add("color");
+    const labelLetra = document.createElement("label");
+    labelLetra.innerText = "Color de letra";
+    const colorLetra = document.createElement("input");
+    colorLetra.type = "color";
+    colorLetra.value = "#000000"
+    colorLetra.classList.add("color");
+    const labelImportante = document.createElement("label");
+    labelImportante.innerText = "Marcar como importante";
+    const checkboxImportante = document.createElement("input");
+    checkboxImportante.type = "checkbox";
+    checkboxImportante.addEventListener("change", () => {
+        if(checkboxImportante.checked) {
+            tarjeta.classList.add("importante");
+        }else{
+            tarjeta.classList.remove("importante");
+        }
+    });
+    const botonPopUp = boton.cloneNode(true);
+    popup.insertAdjacentElement("beforeend", labelLetra);
+    popup.insertAdjacentElement("beforeend", colorLetra);
+    popup.insertAdjacentElement("beforeend", labelFondo);
+    popup.insertAdjacentElement("beforeend", colorFondo);
+    popup.insertAdjacentElement("beforeend", labelImportante);
+    popup.insertAdjacentElement("beforeend", checkboxImportante);
+    popup.insertAdjacentElement("beforeend", botonPopUp);
+    botonPopUp.addEventListener("click", () => {
+        popup.classList.remove("flex");
+        popup.classList.add("hidden");
+    });
+    configuracion.addEventListener("click", () => {
+        if(popup.classList.contains("hidden")) {
+            popup.classList.remove("hidden");
+            popup.classList.add("flex");
+        }else{
+            popup.classList.remove("flex");
+            popup.classList.add("hidden");
+        }
+    });
+    colorFondo.addEventListener('change', () => {
+        const ids = tomarID(colorFondo.parentElement.parentElement);
+        const data = {
+            id_lista: ids.id_lista,
+            id: ids.id,
+            color: colorFondo.value,
+            queCambiar: true
+        };
+        colorFondo.parentElement.parentElement.style.backgroundColor = colorFondo.value;
+        cambiarColor(data);
+    });
+    colorLetra.addEventListener('change', () => {
+        const ids = tomarID(colorLetra.parentElement.parentElement);
+        const data = {
+            id_lista: ids.id_lista,
+            id: ids.id,
+            color: colorLetra.value,
+            queCambiar: false
+        };
+        colorLetra.parentElement.parentElement.style.color = colorLetra.value;
+        cambiarColor(data);
+    });
+    tarjeta.addEventListener("dragstart", (event) => {
+        const idTarjeta = event.target.id;
+        //En el dataTransfer guardamos la id de la tarjeta, para que sepamos que tarjeta estamos moviendo al hacer el drop
+        event.dataTransfer.setData("text/plain", `${idTarjeta}`);
+        tarjeta.classList.add("drag");
+        if(popup.classList.contains("flex")) {
+            popup.classList.remove("flex");
+            popup.classList.add("hidden");
+        }
+    });
+   introducirTarjeta(containerTarjetas);
+
+}
+function introducirTarjeta(containerTarjetas){
+    const data = {
+        id_lista: containerTarjetas.id.replace(/\D/g, ""),
+        tabla_actual: containerTarjetas.id.replace(/\D/g, "")
+    }
+    insertarTarjeta(data)
+}
+
+function textoModificable(p){
+    //Hace el texto modificable, se utiliza para poder modificar el contenido de la tarjeta
+    p.setAttribute("contenteditable", true);
+    const rango = document.createRange();
+    const textoSeleccionado = getSelection();
+    rango.selectNodeContents(p);
+    textoSeleccionado.removeAllRanges();
+    textoSeleccionado.addRange(rango);
+}
+
+function yaNoModificable(p, tarjeta){
+    //Hace que deje de ser modificable
+    p.removeAttribute("contenteditable");
+    if(p.textContent === "") Eliminar(tarjeta);
+}
+
+function eliminarLista(id) {
+    fetch('EliminarLista.php',
+        {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify(id)
+        }
+    ).then(response => response.text())
+        .then(data =>
+        {
+            console.log("Respuesta del servidor correcta")
+        })
+        .catch(error => {
+            console.error("Error del servidor: ", error)
+        })
+}
+function insertarTarjeta(data){
+    fetch('InsertarTarjeta.php',
+        {
+            method:'POST',
+            headers:{"Content-type":"application/json"},
+            body:JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(data =>
+        {
+            console.log("Respuesta del servidor correcta: ", data)
+        })
+        .catch(error => {
+            console.error("Error del servidor: ", error)
+        })
+}
+function eliminarTarjeta(data){
+    fetch("EliminarTarjeta.php",{
+        method: "POST",
+        headers:{"Content-type":"application/json"},
+        body:JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+            console.log("Respues del servidor correcta",);
+        })
+        .catch(error => {
+            console.error("Error del servidor: ", error)
+        })
+}
+
+function guardarTextoCambiado(data){
+    fetch("CambiarTexto.php",{
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+            console.log("Respuesta del servidor correcta")
+        }).catch(error => {
+            console.error("Error del servidor: ", error)
+    })
+}
+
+function changeTexto(id_lista, id, texto){
+    const data = {
+        id_lista: id_lista,
+        id: id,
+        texto: texto
+    }
+    guardarTextoCambiado(data)
+}
+
+function tomarID(tarjeta){
+    return {
+        id_lista: tarjeta.parentElement.id.replace(/t.*$/, "").replace(/\D/g, ""),
+        id: tarjeta.id.replace(/^.*t/,"")
+    };
+}
+
+function actualizarListaActual(data){
+    fetch("ActualizarListaActual.php",{
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+            console.log("Respuesta del servidor correcta: ", data)
+        }).catch(error => {
+        console.error("Error del servidor: ", error)
+    })
+}
+
+function cambiarColor(data){
+    fetch("CambiarColor.php",{
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+            console.log("Respuesta del servidor correcta")
+        }).catch(error => {
+        console.error("Error del servidor: ", error)
+    })
+}
+
+function actualizarImportante(data){
+    fetch("ActualizarImportante.php",{
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+            console.log("Respuesta del servidor correcta")
+        }).catch(error => {
+        console.error("Error del servidor: ", error)
+    })
+}
+
+addEventListener('DOMContentLoaded', configurarBotones)
