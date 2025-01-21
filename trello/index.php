@@ -25,7 +25,7 @@ $conn = new connector();
                 <section id="cards<?php echo $value['id'];?>">
                     <?php
                         foreach($tarjetas as $tarjeta){?>
-                            <section style="background-color: <?php echo $tarjeta['colorfondo'] ?>; color: <?php echo $tarjeta['colorletra'] ?>" draggable="true" class="card" id="tarjeta<?php echo $tarjeta['id_lista']."t".$tarjeta['id'];?>" title="Fecha de creación: <?php echo $tarjeta['fecha'];?>">
+                            <section style="background-color: <?php echo $tarjeta['colorfondo'] ?>; color: <?php echo $tarjeta['colorletra'] ?>" draggable="true" class="<?php if($tarjeta['importante'] == 1) echo "importante " ?>card" id="tarjeta<?php echo $tarjeta['id_lista']."t".$tarjeta['id'];?>" title="Fecha de creación: <?php echo $tarjeta['fecha'];?>">
                                 <section class="flex flexcard">
                                     <p><?php echo $tarjeta['texto'] ?></p>
                                     <button class="botontarjeta">X</button>
@@ -37,7 +37,7 @@ $conn = new connector();
                                     <label>Color de fondo</label>
                                     <input type="color" class="inputcolorfondo" name="color" value="<?php echo $tarjeta['colorfondo']; ?>">
                                     <label>Marcar como importante</label>
-                                    <input type="checkbox" class="checkboximportante" name="importante">
+                                    <input type="checkbox" class="checkboximportante" name="importante" <?php if($tarjeta['importante'] == 1) echo "checked='true'"; ?>>
                                     <button class="botoncerrarpopup">X</button>
                                 </section>
                             </section>

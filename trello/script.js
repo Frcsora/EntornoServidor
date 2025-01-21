@@ -42,11 +42,19 @@ function configurarBotones(){
     const checkbox = document.querySelectorAll(".checkboximportante");
     checkbox.forEach(check => {
         check.addEventListener("change", () => {
+            const ids = tomarID(check.parentElement.parentElement);
+            const data = {
+                id_lista: ids.id_lista,
+                id: ids.id,
+                importante: 0
+            }
             if(check.checked) {
                 check.parentElement.parentElement.classList.add("importante");
+                data.importante = 1;
             }else{
                 check.parentElement.parentElement.classList.remove("importante");
             }
+            actualizarImportante(data);
         });
     })
     const botonesCerrarPopUp = document.querySelectorAll(".botoncerrarpopup");
@@ -81,11 +89,10 @@ function configurarBotones(){
     })
     const botonesCrear = document.querySelectorAll(".add-card");
     botonesCrear.forEach(boton => {
-        let index = 1;
         boton.addEventListener('click', () => {
             const containerTarjetas = boton.parentElement.previousElementSibling;
-            crearTarjeta(containerTarjetas, index);
-            index++;
+            const id = containerTarjetas.hasChildNodes() ? tomarID(containerTarjetas.lastElementChild).id : 2;
+            crearTarjeta(containerTarjetas, id);
         })
     })
     const botonesEliminar = document.querySelectorAll(".delete-list");
@@ -98,6 +105,7 @@ function configurarBotones(){
     })
     const listas = document.querySelectorAll(".list");
     listas.forEach(lista => {
+        posiciones(lista);
         lista.addEventListener("dragover", (event) => event.preventDefault());
         lista.addEventListener('drop', (event) => drop(event));
 
@@ -181,7 +189,7 @@ function crearTarjeta(containerTarjetas, index){
     tarjeta.setAttribute('title', `Fecha de creación: ${fecha}`);
     tarjeta.classList.add("card");
     //La id consiste en la palabra tarjeta seguida del número del contenedor(0, 1 o 2) y el indice que se le pasa desde crearLista
-    tarjeta.id = `tarjeta${containerTarjetas.id.replace(/\D/g, "")}${index}`
+    tarjeta.id = `tarjeta${containerTarjetas.id.replace(/\D/g, "")}t${index}`
     tarjeta.setAttribute('draggable', 'true');
     containerTarjetas.insertAdjacentElement("beforeend", tarjeta);
     const contenidoTarjeta = document.createElement("section");
@@ -197,12 +205,7 @@ function crearTarjeta(containerTarjetas, index){
         const listaid = ids.id_lista;
         const id = ids.id;
         const texto = p.innerText;
-        const data = {
-            id_lista: listaid,
-            id: id,
-            texto: texto
-        }
-        changeTexto(data);
+        changeTexto(listaid, id, texto);
     });
     //creo un popup que nos permite modificar la tarjeta, a traves de un boton con la clásica rueda de configuración que hace el popup visible
     const popup = document.createElement("section");
@@ -244,11 +247,19 @@ function crearTarjeta(containerTarjetas, index){
     const checkboxImportante = document.createElement("input");
     checkboxImportante.type = "checkbox";
     checkboxImportante.addEventListener("change", () => {
+        const ids = tomarID(tarjeta);
+        const data = {
+            id_lista: ids.id_lista,
+            id: ids.id,
+            importante: 0
+        }
         if(checkboxImportante.checked) {
             tarjeta.classList.add("importante");
+            data.importante = 1
         }else{
             tarjeta.classList.remove("importante");
         }
+        actualizarImportante(data);
     });
     const botonPopUp = boton.cloneNode(true);
     popup.insertAdjacentElement("beforeend", labelLetra);
@@ -337,7 +348,7 @@ function eliminarLista(id) {
             headers: {"Content-type": "application/json"},
             body: JSON.stringify(id)
         }
-    ).then(response => response.text())
+    ).then(response => response.json())
         .then(data =>
         {
             console.log("Respuesta del servidor correcta")
@@ -353,7 +364,7 @@ function insertarTarjeta(data){
             headers:{"Content-type":"application/json"},
             body:JSON.stringify(data)
         })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data =>
         {
             console.log("Respuesta del servidor correcta: ", data)
@@ -395,13 +406,15 @@ function changeTexto(id_lista, id, texto){
         id: id,
         texto: texto
     }
+    console.log(data.id, id)
     guardarTextoCambiado(data)
 }
 
 function tomarID(tarjeta){
+    const id_lista = tarjeta.id.replace(/t\d+$/, "").slice(7);
     return {
-        id_lista: tarjeta.parentElement.id.replace(/t.*$/, "").replace(/\D/g, ""),
-        id: tarjeta.id.replace(/^.*t/,"")
+        id_lista: id_lista,
+        id: tarjeta.id.slice(7).replace(/^.*t/, ""),
     };
 }
 
@@ -410,7 +423,7 @@ function actualizarListaActual(data){
         method:"POST",
         headers:{"Content-type":"application/json"},
         body: JSON.stringify(data)
-    }).then(response => response.json())
+    }).then(response => response.text())
         .then(data => {
             console.log("Respuesta del servidor correcta: ", data)
         }).catch(error => {
@@ -438,10 +451,33 @@ function actualizarImportante(data){
         body: JSON.stringify(data)
     }).then(response => response.json())
         .then(data => {
-            console.log("Respuesta del servidor correcta")
+            console.log("Respuesta del servidor correcta", data)
         }).catch(error => {
         console.error("Error del servidor: ", error)
     })
 }
-
+function actualizarPosicion(data){
+    fetch("ActualizarPosicion.php",{
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body: JSON.stringify(data)
+    }).then(response => response.text())
+        .then(data => {
+            console.log("Respuesta del servidor correcta", data)
+        }).catch(error => {
+        console.error("Error del servidor: ", error)
+    })
+}
+function posiciones(containerTarjetas){
+    const tarjetas = containerTarjetas.children;
+    for(let i = 0 ; i < tarjetas.length ; i++){
+        const ids = tomarID(tarjetas[i]);
+        const data = {
+            id_lista: ids.id_lista,
+            id: ids.id,
+            posicion: i + 1
+        }
+        actualizarPosicion(data);
+    }
+}
 addEventListener('DOMContentLoaded', configurarBotones)

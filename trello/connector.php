@@ -165,4 +165,21 @@ class connector
             echo "Error: ".$e -> getMessage();
         }
     }
+    function actualizarPosicion($PDO, $datos){
+        $id_lista = $datos['id_lista'];
+        $id = $datos['id'];
+        $posicion = $datos['posicion'];
+        try{
+            $PDO -> beginTransaction();
+            $stmt = $PDO -> prepare("UPDATE tarjetas SET orden = :posicion WHERE id_lista = :id_lista AND id = :id");
+            $stmt->bindParam(':posicion', $posicion);
+            $stmt->bindParam(':id_lista', $id_lista);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $PDO ->commit();
+        }catch (PDOException $e){
+            $PDO ->rollBack();
+            echo "Error: ".$e -> getMessage();
+        }
+    }
 }
